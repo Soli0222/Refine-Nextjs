@@ -6,12 +6,13 @@ import { notificationProvider, RefineSnackbarProvider } from "@refinedev/mui";
 import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { useEffect, useState } from 'react';
 
 import routerProvider from "@refinedev/nextjs-router";
 
 import { AppIcon } from "@components/app-icon";
 import { ColorModeContextProvider } from "@contexts/color-mode";
-import { dataProvider } from "@providers/data-provider";
+import { createDataProvider } from "@providers/data-provider";
 
 type RefineContextProps = {
   defaultMode?: string;
@@ -34,6 +35,19 @@ type AppProps = {
 const App = (props: React.PropsWithChildren<AppProps>) => {
   const { data, status } = useSession();
   const to = usePathname();
+
+  const [dataProvider, setDataProvider] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+      const initializeDataProvider = async () => {
+          const dp = await createDataProvider();
+          setDataProvider(dp);
+          setLoading(false);
+      };
+
+      initializeDataProvider();
+  }, []);
 
   if (status === "loading") {
     return <span>loading...</span>;
